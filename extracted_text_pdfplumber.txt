@@ -1,0 +1,6 @@
+
+--- Page 1 ---
+Health Insurance Policy
+Coverage: Cosmetic surgery excluded
+Nose surgery: Not covered
+Emergency treatment: Covered

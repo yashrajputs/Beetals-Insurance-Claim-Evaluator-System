@@ -1,0 +1,557 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Claims Analysis Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1565C0',
+                        'primary-dark': '#0D47A1',
+                        'primary-light': '#1976D2',
+                        secondary: '#00838F',
+                        'secondary-light': '#00ACC1',
+                        success: '#2E7D32',
+                        warning: '#F57C00',
+                        error: '#C62828',
+                        'neutral-50': '#FAFAFA',
+                        'neutral-100': '#F5F5F5',
+                        'neutral-200': '#E0E0E0',
+                        'neutral-500': '#757575',
+                        'neutral-700': '#424242',
+                        'neutral-800': '#212121'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'card': '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        'card-hover': '0 4px 16px rgba(0, 0, 0, 0.15)'
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-neutral-50 font-sans">
+    <!-- @COMPONENT: Header Navigation -->
+    <header class="bg-white shadow-sm border-b border-neutral-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-semibold text-neutral-800">InsuraClaims AI</h1>
+                        <p class="text-xs text-neutral-500">Claims Analysis Platform</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="#dashboard" class="text-primary font-medium">Dashboard</a>
+                    <a href="#analysis" class="text-neutral-500 hover:text-primary transition-colors">Analysis</a>
+                    <a href="#documents" class="text-neutral-500 hover:text-primary transition-colors">Documents</a>
+                    <a href="#history" class="text-neutral-500 hover:text-primary transition-colors">History</a>
+                </nav>
+                <div class="flex items-center space-x-3">
+                    <button class="p-2 text-neutral-500 hover:text-primary transition-colors">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-medium">JD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header Navigation -->
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- @COMPONENT: Main Dashboard Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Claims Analysis Form -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- @COMPONENT: PDF Upload Section -->
+                <div class="bg-white rounded-xl shadow-card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-semibold text-neutral-800">Policy Document Upload</h2>
+                            <p class="text-sm text-neutral-500 mt-1">Upload insurance policy PDF for analysis</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success text-white">
+                                <i class="fas fa-check mr-1"></i>
+                                Ready
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- @FUNCTIONALITY: File upload with drag-and-drop using FileReader API -->
+                    <div class="border-2 border-dashed border-neutral-200 rounded-lg p-8 text-center hover:border-primary transition-colors" data-implementation="Implement drag-and-drop file upload">
+                        <div class="mx-auto w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-file-pdf text-primary text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-neutral-800 mb-2">Upload Policy Document</h3>
+                        <p class="text-sm text-neutral-500 mb-4">Drag and drop your PDF file here, or click to browse</p>
+                        <button class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors" data-event="click:handleFileUpload">
+                            <i class="fas fa-upload mr-2"></i>
+                            Choose File
+                        </button>
+                        <p class="text-xs text-neutral-400 mt-2">Supports PDF files up to 50MB</p>
+                    </div>
+
+                    <!-- @STATE: uploadedFiles:array = [] -->
+                    <div class="mt-4 hidden" id="uploadedFiles">
+                        <div class="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-file-pdf text-error text-lg"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-neutral-800" data-bind="file.name">policy_document.pdf</p>
+                                    <p class="text-xs text-neutral-500" data-bind="file.size">2.4 MB</p>
+                                </div>
+                            </div>
+                            <button class="p-1 text-neutral-400 hover:text-error transition-colors" data-event="click:removeFile">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: PDF Upload Section -->
+
+                <!-- @COMPONENT: Claims Analysis Form -->
+                <div class="bg-white rounded-xl shadow-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-neutral-800">Claims Analysis</h2>
+                        <p class="text-sm text-neutral-500 mt-1">Enter claim details for AI-powered coverage analysis</p>
+                    </div>
+
+                    <form class="space-y-6" data-implementation="Form validation and submission logic">
+                        <!-- Patient Information -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-neutral-700 mb-2">Patient Age</label>
+                                <input type="number" placeholder="Enter age" min="0" max="120" 
+                                       class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                                       data-bind="claim.age" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-neutral-700 mb-2">Gender</label>
+                                <select class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                                        data-bind="claim.gender" required>
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Procedure Details -->
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-700 mb-2">Medical Procedure/Treatment</label>
+                            <textarea placeholder="Describe the medical procedure or treatment (e.g., air ambulance, surgery, consultation)" 
+                                      rows="3" 
+                                      class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none" 
+                                      data-bind="claim.procedure" required></textarea>
+                        </div>
+
+                        <!-- Location and Distance -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-neutral-700 mb-2">Treatment Location</label>
+                                <input type="text" placeholder="City, State" 
+                                       class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                                       data-bind="claim.location">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-neutral-700 mb-2">Distance Traveled (km)</label>
+                                <input type="number" placeholder="0" min="0" 
+                                       class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                                       data-bind="claim.distance">
+                            </div>
+                        </div>
+
+                        <!-- Policy Information -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-neutral-700 mb-2">Policy Duration (months)</label>
+                                <input type="number" placeholder="12" min="1" 
+                                       class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                                       data-bind="claim.policyDuration">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-neutral-700 mb-2">Claim Amount (₹)</label>
+                                <input type="number" placeholder="0" min="0" 
+                                       class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                                       data-bind="claim.amount">
+                            </div>
+                        </div>
+
+                        <!-- Reimbursement Percentage -->
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-700 mb-2">Seeking Reimbursement (%)</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="range" min="0" max="100" value="100" 
+                                       class="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer slider" 
+                                       data-bind="claim.reimbursementPercentage">
+                                <span class="text-lg font-semibold text-primary min-w-[4rem] text-right" data-bind="claim.reimbursementPercentage">100%</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" 
+                                class="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-dark transition-colors flex items-center justify-center" 
+                                data-event="click:analyzeClarm" 
+                                data-implementation="Should validate form and send to AI analysis endpoint">
+                            <i class="fas fa-robot mr-2"></i>
+                            Analyze Claim Coverage
+                        </button>
+                    </form>
+                </div>
+                <!-- @END_COMPONENT: Claims Analysis Form -->
+
+                <!-- @COMPONENT: Analysis Results -->
+                <!-- @STATE: analysisResults:object = null, isLoading:boolean = false -->
+                <div class="bg-white rounded-xl shadow-card p-6 hidden" id="analysisResults">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-neutral-800">Coverage Analysis Results</h2>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-neutral-500 hover:text-primary transition-colors" data-implementation="Export results to PDF">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="p-2 text-neutral-500 hover:text-primary transition-colors" data-implementation="Share analysis results">
+                                <i class="fas fa-share"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Decision Summary -->
+                    <div class="bg-success bg-opacity-10 border border-success border-opacity-20 rounded-lg p-4 mb-6" data-mock="true">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-success rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-success mb-1" data-bind="results.decision">Claim Approved</h3>
+                                <p class="text-sm text-neutral-700" data-bind="results.amount">Approved Amount: ₹45,000</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Justification -->
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-neutral-800">Analysis Justification</h4>
+                        <div class="bg-neutral-50 rounded-lg p-4">
+                            <p class="text-sm text-neutral-700 leading-relaxed" data-bind="results.justification" data-mock="true">
+                                Based on the policy analysis, air ambulance services are covered under emergency medical transportation with the following conditions: (1) Distance exceeds 100km from nearest network hospital, (2) Medical emergency requiring immediate transportation, (3) Pre-authorization obtained within 24 hours. Your claim meets all criteria with 300km distance traveled and emergency nature documented. The 90% reimbursement applies after deductible of ₹5,000.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Relevant Policy Clauses -->
+                    <div class="mt-6">
+                        <h4 class="font-medium text-neutral-800 mb-4">Relevant Policy Clauses</h4>
+                        <!-- @MAP: relevantClauses.map(clause => ( -->
+                        <div class="space-y-3" data-mock="true">
+                            <div class="border border-neutral-200 rounded-lg p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h5 class="font-medium text-sm text-neutral-800" data-bind="clause.title">Emergency Transportation Coverage</h5>
+                                    <span class="text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded" data-bind="clause.page">Page 12</span>
+                                </div>
+                                <p class="text-sm text-neutral-600" data-bind="clause.text">
+                                    Air ambulance services are covered up to ₹50,000 per policy year for emergency medical transportation when the nearest network hospital is more than 100km away...
+                                </p>
+                            </div>
+                            <div class="border border-neutral-200 rounded-lg p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h5 class="font-medium text-sm text-neutral-800" data-bind="clause.title">Pre-authorization Requirements</h5>
+                                    <span class="text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded" data-bind="clause.page">Page 8</span>
+                                </div>
+                                <p class="text-sm text-neutral-600" data-bind="clause.text">
+                                    Emergency services require pre-authorization within 24 hours of service initiation. Failure to obtain authorization may result in claim rejection...
+                                </p>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: Analysis Results -->
+
+            </div>
+
+            <!-- Right Column: History and Documents -->
+            <div class="space-y-6">
+                
+                <!-- @COMPONENT: Quick Stats -->
+                <div class="bg-white rounded-xl shadow-card p-6">
+                    <h3 class="text-lg font-semibold text-neutral-800 mb-4">Analysis Summary</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-neutral-600">Total Analyses</span>
+                            <span class="font-semibold text-neutral-800" data-bind="stats.totalAnalyses" data-mock="true">247</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-neutral-600">Approved Claims</span>
+                            <span class="font-semibold text-success" data-bind="stats.approvedClaims" data-mock="true">189</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-neutral-600">Pending Review</span>
+                            <span class="font-semibold text-warning" data-bind="stats.pendingClaims" data-mock="true">12</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-neutral-600">Rejected</span>
+                            <span class="font-semibold text-error" data-bind="stats.rejectedClaims" data-mock="true">46</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-neutral-200">
+                        <div class="text-sm text-neutral-600 mb-1">Approval Rate</div>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-1 bg-neutral-200 rounded-full h-2">
+                                <div class="bg-success h-2 rounded-full" style="width: 76.5%"></div>
+                            </div>
+                            <span class="text-sm font-semibold text-success" data-mock="true">76.5%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: Quick Stats -->
+
+                <!-- @COMPONENT: Document Library -->
+                <div class="bg-white rounded-xl shadow-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-neutral-800">Document Library</h3>
+                        <button class="text-primary hover:text-primary-dark text-sm font-medium" data-implementation="Navigate to full document management">
+                            View All
+                        </button>
+                    </div>
+                    
+                    <!-- @MAP: documents.map(doc => ( -->
+                    <div class="space-y-3" data-mock="true">
+                        <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer">
+                            <div class="w-10 h-10 bg-error bg-opacity-10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-pdf text-error"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-neutral-800 truncate" data-bind="doc.name">Health_Policy_2024.pdf</p>
+                                <p class="text-xs text-neutral-500" data-bind="doc.uploadDate">Uploaded 2 days ago</p>
+                            </div>
+                            <button class="p-1 text-neutral-400 hover:text-primary transition-colors">
+                                <i class="fas fa-ellipsis-v text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer">
+                            <div class="w-10 h-10 bg-error bg-opacity-10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-pdf text-error"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-neutral-800 truncate" data-bind="doc.name">Travel_Insurance_T&C.pdf</p>
+                                <p class="text-xs text-neutral-500" data-bind="doc.uploadDate">Uploaded 1 week ago</p>
+                            </div>
+                            <button class="p-1 text-neutral-400 hover:text-primary transition-colors">
+                                <i class="fas fa-ellipsis-v text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer">
+                            <div class="w-10 h-10 bg-error bg-opacity-10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-pdf text-error"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-neutral-800 truncate" data-bind="doc.name">Motor_Policy_Guidelines.pdf</p>
+                                <p class="text-xs text-neutral-500" data-bind="doc.uploadDate">Uploaded 2 weeks ago</p>
+                            </div>
+                            <button class="p-1 text-neutral-400 hover:text-primary transition-colors">
+                                <i class="fas fa-ellipsis-v text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+                <!-- @END_COMPONENT: Document Library -->
+
+                <!-- @COMPONENT: Recent Analysis History -->
+                <div class="bg-white rounded-xl shadow-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-neutral-800">Recent Analyses</h3>
+                        <button class="text-primary hover:text-primary-dark text-sm font-medium" data-implementation="Navigate to full history">
+                            View All
+                        </button>
+                    </div>
+                    
+                    <!-- @MAP: recentAnalyses.map(analysis => ( -->
+                    <div class="space-y-4" data-mock="true">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-success rounded-full mt-2 flex-shrink-0"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-neutral-800" data-bind="analysis.procedure">Air Ambulance Service</p>
+                                <p class="text-xs text-neutral-500" data-bind="analysis.date">Today, 2:30 PM</p>
+                                <p class="text-xs text-success" data-bind="analysis.status">Approved - ₹45,000</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-neutral-800" data-bind="analysis.procedure">Cardiac Surgery</p>
+                                <p class="text-xs text-neutral-500" data-bind="analysis.date">Yesterday, 4:15 PM</p>
+                                <p class="text-xs text-warning" data-bind="analysis.status">Under Review</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-success rounded-full mt-2 flex-shrink-0"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-neutral-800" data-bind="analysis.procedure">Emergency Consultation</p>
+                                <p class="text-xs text-neutral-500" data-bind="analysis.date">2 days ago</p>
+                                <p class="text-xs text-success" data-bind="analysis.status">Approved - ₹8,500</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-error rounded-full mt-2 flex-shrink-0"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-neutral-800" data-bind="analysis.procedure">Cosmetic Procedure</p>
+                                <p class="text-xs text-neutral-500" data-bind="analysis.date">3 days ago</p>
+                                <p class="text-xs text-error" data-bind="analysis.status">Rejected - Not Covered</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+                <!-- @END_COMPONENT: Recent Analysis History -->
+
+            </div>
+        </div>
+        <!-- @END_COMPONENT: Main Dashboard Layout -->
+    </div>
+
+    <!-- @COMPONENT: Loading Overlay -->
+    <!-- @STATE: isAnalyzing:boolean = false -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-8 max-w-sm mx-4 text-center">
+            <div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+            <h3 class="text-lg font-semibold text-neutral-800 mb-2">Analyzing Claim</h3>
+            <p class="text-sm text-neutral-500">AI is processing your claim against policy documents...</p>
+            <div class="mt-4 bg-neutral-200 rounded-full h-2">
+                <div class="bg-primary h-2 rounded-full animate-pulse" style="width: 60%"></div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Loading Overlay -->
+
+    <!-- @COMPONENT: Toast Notifications -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2" data-implementation="Toast notification system for success/error messages">
+        <!-- Toast messages will be dynamically added here -->
+    </div>
+    <!-- @END_COMPONENT: Toast Notifications -->
+
+    <script>
+    (function() {
+        // TODO: Implement business logic, API calls, and state management
+        
+        // Slider value display
+        const slider = document.querySelector('input[type="range"]');
+        const display = document.querySelector('[data-bind="claim.reimbursementPercentage"]');
+        
+        if (slider && display) {
+            slider.addEventListener('input', function() {
+                display.textContent = this.value + '%';
+            });
+        }
+
+        // Form submission handling
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // TODO: Implement form validation and API submission
+                showLoadingOverlay();
+                
+                // Simulate API call
+                setTimeout(() => {
+                    hideLoadingOverlay();
+                    showAnalysisResults();
+                    showToast('Analysis completed successfully!', 'success');
+                }, 3000);
+            });
+        }
+
+        // File upload handling
+        const fileUpload = document.querySelector('[data-event="click:handleFileUpload"]');
+        if (fileUpload) {
+            fileUpload.addEventListener('click', function() {
+                // TODO: Implement file upload functionality
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.pdf';
+                fileInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        showUploadedFile(e.target.files[0]);
+                    }
+                });
+                fileInput.click();
+            });
+        }
+
+        function showLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showAnalysisResults() {
+            document.getElementById('analysisResults').classList.remove('hidden');
+            document.getElementById('analysisResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showUploadedFile(file) {
+            const container = document.getElementById('uploadedFiles');
+            container.classList.remove('hidden');
+            // TODO: Update file display with actual file info
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-lg shadow-card transform transition-all duration-300 translate-x-full ${
+                type === 'success' ? 'bg-success text-white' : 
+                type === 'error' ? 'bg-error text-white' : 
+                'bg-white text-neutral-800'
+            }`;
+            toast.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-exclamation-triangle' : 'fa-info'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize tooltips and other UI enhancements
+        // TODO: Add more interactive features as needed
+    })();
+    </script>
+
+</body>
+</html>
